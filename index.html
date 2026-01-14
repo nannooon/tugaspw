@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senja Kopi - Pemesanan Online</title>
+    <style>
+        :root {
+            --primary: #6F4E37; /* Warna Kopi */
+            --secondary: #C4A484; /* Warna Latte */
+            --bg: #FDFBF7;
+            --text: #333;
+            --white: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 1.5rem; }
+
+        .cart-icon {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.8rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        /* Menu Grid */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .menu-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .card-price {
+            font-weight: bold;
+            color: var(--text);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #5a3e2b;
+        }
+
+        /* Cart Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>☕ Senja Kopi</h1>
+        <div class="cart-icon" onclick="toggleCart()">
+            🛒 <span class="cart-count" id="cartCount">0</span>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h2>Nikmati Kopi Terbaik Hari Ini</h2>
+        <p>Pesan online, kami antar ke meja atau rumah Anda.</p>
+    </div>
+
+    <div class="container">
+        <h2 class="menu-title">Menu Kami</h2>
+        <div class="menu-grid" id="menuContainer">
+            <!-- Menu items will be injected here by JS -->
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="toggleCart()">&times;</span>
+            <h2>Keranjang Pesanan</h2>
+            <div id="cartItems">
+                <p>Keranjang masih kosong.</p>
+            </div>
+            <h3 style="margin-top: 1rem;">Total: Rp <span id="cartTotal">0</span></h3>
+            
+            <hr style="margin: 1rem 0;">
+            
+            <div class="form-group">
+                <label>Nama Pemesan</label>
+                <input type="text" id="customerName" placeholder="Masukkan nama Anda">
+            </div>
+            <div class="form-group">
+                <label>Nomor Meja / Alamat</label>
+                <input type="text" id="customerAddress" placeholder="Contoh: Meja 5 atau Jl. Mawar No. 1">
+            </div>
+            
+            <button class="btn" onclick="checkout()">Pesan via WhatsApp</button>
+        </div>
+    </div>
+
+    <script>
+        // Data Menu
+        const products = [
+            { id: 1, name: 'Kopi Susu Gula Aren', price: 18000, img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=400&q=80' },
+            { id: 2, name: 'Americano Hot', price: 15000, img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80' },
+            { id: 3, name: 'Cappuccino', price: 22000, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80' },
+            { id: 4, name: 'Caramel Macchiato', price: 25000, img: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?auto=format&fit=crop&w=400&q=80' },
+            { id: 5, name: 'Matcha Latte', price: 23000, img: 'https://images.unsplash.com/photo-1515825838458-f2a94b20105a?auto=format&fit=crop&w=400&q=80' },
+            { id: 6, name: 'Croissant Butter', price: 12000, img: 'https://images.unsplash.com/photo-1555507036-ab1f40388085?auto=format&fit=crop&w=400&q=80' }
+        ];
+
+        let cart = [];
+
+        // Render Menu
+        const menuContainer = document.getElementById('menuContainer');
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <img src="${product.img}" alt="${product.name}">
+                <div class="card-body">
+                    <h3 class="card-title">${product.name}</h3>
+                    <span class="card-price">Rp ${product.price.toLocaleString('id-ID')}</span>
+                    <button class="btn" onclick="addToCart(${product.id})">Tambah ke Keranjang</button>
+                </div>
+            `;
+            menuContainer.appendChild(card);
+        });
+
+        // Fungsi Tambah ke Keranjang
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const existingItem = cart.find(item => item.id === id);
+
+            if (existingItem) {
+                existingItem.qty++;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            updateCartUI();
+        }
+
+        // Update Tampilan Keranjang
+        function updateCartUI() {
+            document.getElementById('cartCount').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
+            
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p>Keranjang masih kosong.</p>';
+                cartTotal.innerText = '0';
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div>${item.name} x${item.qty}</div>
+                        <div>Rp ${(item.price * item.qty).toLocaleString('id-ID')}</div>
+                    </div>
+                `).join('');
+                
+                const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                cartTotal.innerText = total.toLocaleString('id-ID');
+            }
+        }
+
+        // Toggle Modal
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // Checkout ke WhatsApp
+        function checkout() {
+            if (cart.length === 0) return alert('Keranjang kosong!');
+            
+            const name = document.getElementById('customerName').value;
+            const address = document.getElementById('customerAddress').value;
+            
+            if (!name || !address) return alert('Mohon lengkapi nama dan nomor meja/alamat.');
+
+            let message = `Halo Senja Kopi, saya ingin memesan:\n\n`;
+            cart.forEach(item => {
+                message += `- ${item.name} (${item.qty}x) : Rp ${(item.price * item.qty).toLocaleString('id-ID')}\n`;
+            });
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            message += `\nTotal: Rp ${total.toLocaleString('id-ID')}`;
+            message += `\n\nNama: ${name}`;
+            message += `\nLokasi: ${address}`;
+
+            // Ganti nomor di bawah ini dengan nomor WhatsApp Coffee Shop Anda (format: 628...)
+            const phoneNumber = '6281234567890'; 
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
